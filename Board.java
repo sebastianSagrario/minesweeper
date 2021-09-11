@@ -15,13 +15,12 @@ public class Board {
 
     private char [] [] hiddenMatrix;
     private char [] [] gamingMatrix;
-    
-    
-    
+    private final int MINES;
     
     
     public Board(int dimension)
     {
+        MINES=7;
         hiddenMatrix=generateHMatrix(dimension);
         gamingMatrix=generateGMatrix(dimension);
     }
@@ -35,46 +34,44 @@ public class Board {
                 c='0';
             }
         }
-        placeBombs(aux);
+        placeMines(aux);
         generateMinesHints(aux);
         return aux;
     }
-    
-    
     /*
     place the bombs in the board
     */
-    private void placeBombs(char [][] mat)
+    private void placeMines(char [][] mat)
     {
         int rowR;
         int colR;
         
-        for (int i=0;i<10;i++)
-        {
-            rowR=(int) (Math.random()*5);
-            colR=(int) (Math.random()*5);
+        for (int i=0;i<MINES;i++)
+        {//buscar alguna forma de que no se repita la posicion en la que voy a clavar la mina//DONE
+            do
+            {
+                rowR=(int) (Math.random()*mat.length);
+                colR=(int) (Math.random()*mat.length);                
+            }while (mat[rowR][colR]=='X');
             mat[rowR][colR]='X';            
         }
     }
-    
-    
     /*
     generate the hints arround all the mines
     */
     private void generateMinesHints(char [][]mat)
     {
-        for (int i=1;i<mat.length-1;i++)
+        for (int i=0;i<mat.length;i++)
         {
-            for (int j=1;j<mat.length-1;j++)
+            for (int j=0;j<mat.length;j++)
             {      
                 if (mat[i][j]!='X')
                 {
-                    placeMineHints(mat,i,j);//it is not working properly                
+                    placeMineHints(mat,i,j);//it is not working properly //FIXED
                 }
             }
         }
     }
-    
     /*
     place the hints arround one mine at the specific position
     */
@@ -86,21 +83,22 @@ public class Board {
         int iEnd;
         int jBegin;
         int jEnd;
-        iBegin= row==0? row:row-1; //this could be faster using nested IFs
-        iEnd= row==(mat.length)? row:row+1;
-        jBegin=col==0? col:col-1;
-        jEnd= col==(mat.length)? col:col+1;
         
-        for (int i= row-1; i<=row+1;i++)
+        iBegin= row==0? row:row-1; //this could be faster using nested IFs
+        iEnd= row==(mat.length-1)? row:row+1;
+        jBegin=col==0? col:col-1;
+        jEnd= col==(mat.length-1)? col:col+1;
+                
+        for (int i= iBegin; i<=iEnd;i++)
         {
-            for (int j=col-1;j<col+1;j++)
+            for (int j=jBegin;j<=jEnd;j++)
             {
+                System.out.println(i+" "+j);
                 if (mat[i][j]=='X')
                 {
                     minesCounter++;
-                }
-                    
-            }
+                }                    
+            } 
         }
         System.out.println(minesCounter+" mc");
         mat[row][col]=(char)(minesCounter +48);            
@@ -122,23 +120,12 @@ public class Board {
     
     public static void showMatrix (char [][] mat)
     {
-        for (int i=1;i<mat.length-1;i++)
-        {
-            for (int j = 1; j < mat.length-1; j++) {
-                System.out.print(mat[i][j]);                
+         for (char[] fila : mat) {  
+             for (char e : fila) {
+                System.out.print(e+"|");
             }
             System.out.println("");
         }
-                   
-        
-        
-        
-//        for (char[] fila : mat) {
-//            for (char e : fila) {
-//                System.out.print(e+" ");
-//            }
-//            System.out.println("");
-//        }
     }
 
     public char[][] getHiddenMatrix() {
@@ -147,6 +134,12 @@ public class Board {
 
     public char[][] getGamingMatrix() {
         return gamingMatrix;
+    }
+    
+    public void reveal()
+    {
+        Scanner reader=new Scanner (System.in);
+        
     }
     
     

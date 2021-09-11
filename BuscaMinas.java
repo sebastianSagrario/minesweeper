@@ -16,7 +16,7 @@ public class BuscaMinas {
      */
     public static void main(String[] args) {
         Board b=new Board(10);
-        Board.showMatrix(b.getGamingMatrix());
+       // Board.showMatrix(b.getGamingMatrix());
         Board.showMatrix(b.getHiddenMatrix());
 
     }
