@@ -7,24 +7,30 @@ package juegoBuscaminas;
 
 import java.util.Arrays;
 
+
 /**
  *
  * @author sebag
  */
 public class Board {
 
-    private char [] [] hiddenMatrix;
+    private final char [] [] hiddenMatrix;
     private char [] [] gamingMatrix;
+    private boolean gameOver;
+    
     private final int MINES;
-    
-    
-    public Board(int dimension)
+    private final char NOTCHECK='*';
+    public Board()
     {
-        MINES=7;
-        hiddenMatrix=generateHMatrix(dimension);
-        gamingMatrix=generateGMatrix(dimension);
+        gameOver=false;
+        MINES=10;
+        hiddenMatrix=generateHMatrix(10);
+        gamingMatrix=generateGMatrix(10);
     }
     
+    /*
+    generates the actual gameBoard  with the position of the mines and their hints ,this is supossed to be hidden 
+    */
     private char [][] generateHMatrix(int dim)
     {
         char [][] aux;
@@ -56,7 +62,7 @@ public class Board {
             mat[rowR][colR]='X';            
         }
     }
-    /*
+    /*1
     generate the hints arround all the mines
     */
     private void generateMinesHints(char [][]mat)
@@ -93,16 +99,15 @@ public class Board {
         {
             for (int j=jBegin;j<=jEnd;j++)
             {
-                System.out.println(i+" "+j);
                 if (mat[i][j]=='X')
                 {
                     minesCounter++;
                 }                    
             } 
-        }
-        System.out.println(minesCounter+" mc");
+        }        
         mat[row][col]=(char)(minesCounter +48);            
     }
+        
     
     private char [][] generateGMatrix(int dim)
     {
@@ -112,10 +117,98 @@ public class Board {
         {
             for (int j=0;j<dim;j++)
             {
-                aux[i][j]='*';
+                aux[i][j]=NOTCHECK;
             }
         }
         return aux;
+    }
+    
+    /*
+    reveals in the Gaming Matrix the row and the colum in the parameter
+    */
+    
+    public void reveal(int i,int j)
+    {        
+        if (insideMatrix(i,j))
+        {
+            if (gameOver)
+            {
+                System.out.println("game over");
+            }
+            else 
+            {
+                if ('0'==hiddenMatrix[i][j])
+                {
+                    revealZeroes(i,j);
+                }
+                else
+                {
+                    gamingMatrix[i][j]=hiddenMatrix[i][j];                    
+                }
+                gameOver = (hiddenMatrix[i][j]=='X');                    
+            }            
+        }
+        else
+        {
+            System.out.println("out of boundaries values");
+        }
+    }
+    
+    /*
+        put a flag at the specified position in the gamming matrix
+    */
+    public void putFlag(int i,int j)
+    {
+        if (insideMatrix(i,j))
+        {
+            gamingMatrix[i][j]='P';///the P look like a flag
+                    
+        }
+        else
+        {
+            System.out.println("out of boundaries values");        
+        }
+    }
+    
+/*
+    retire a flag at the specified position
+    */
+    public void retireFlag(int i,int j)
+    {
+        if (insideMatrix(i,j) && gamingMatrix[i][j]=='P')
+        {
+            gamingMatrix[i][j]=NOTCHECK;///the P look like a flag                    
+        }
+        else
+        {
+            System.out.println("out of boundaries values");        
+        }
+    }
+    
+    
+    /*
+    reveal all the zeroes in the hidden matrix sourronding a position "row " and "col" 
+    */
+    
+    private void revealZeroes(int row,int col)//i couldnt find an iterative way to doit, but it gets the job done
+    {
+        if ( insideMatrix(row,col) && hiddenMatrix[row][col]=='0' && gamingMatrix[row][col]==NOTCHECK)
+        {
+            gamingMatrix[row][col]='0';
+            revealZeroes(row,col+1);
+            revealZeroes(row,col-1);
+            revealZeroes(row+1,col);
+            revealZeroes(row-1,col);
+        }
+    }
+    
+    /*
+    return true if i,j position belongs to the matrix
+    */
+    private boolean insideMatrix(int i,int j)
+    {
+        
+        return i>-1 && i<hiddenMatrix.length && j>-1 && j<hiddenMatrix.length;
     }
     
     public static void showMatrix (char [][] mat)
@@ -136,11 +229,17 @@ public class Board {
         return gamingMatrix;
     }
     
-    public void reveal()
+    public void setGameOver()
     {
-        Scanner reader=new Scanner (System.in);
-        
+        gameOver=true;
     }
+    
+    public boolean getGameOver()
+    {
+        return gameOver;
+    }
+    
+    
     
     
 }
